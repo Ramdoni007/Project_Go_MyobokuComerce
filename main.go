@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"github.com/gofiber/fiber/v2"
+	"go-myobokucomerce-app/config"
+	"go-myobokucomerce-app/internal/api"
+	"log"
 )
 
 func main() {
 
-	fmt.Println("Welcome To My Project mother Fucker")
+	cfg, err := config.SetupEnv()
 
-	app := fiber.New()
-
-	app.Listen("localhost:9000")
-
+	if err != nil {
+		log.Fatalf("config file is not loaded properly %v\n", err)
+	}
+	api.StartServer(cfg)
 }
