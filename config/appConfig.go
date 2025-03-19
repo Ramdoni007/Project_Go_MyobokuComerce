@@ -23,3 +23,4 @@ func SetupEnv() (cfg AppConfig, err error) {
 
 	return AppConfig{ServerPort: httpPort}, nil
 }
+
