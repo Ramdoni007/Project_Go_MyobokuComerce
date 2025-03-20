@@ -3,20 +3,25 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"go-myobokucomerce-app/internal/api/rest"
+	"go-myobokucomerce-app/internal/dto"
+	"go-myobokucomerce-app/internal/service"
 	"net/http"
 )
 
 type userHandler struct {
-	// svc userService
-
+	// waiting for svc userService
+	svc service.UserService
 }
 
 func SetUpUserRoutes(rh *rest.RestHandler) {
 
 	app := rh.App
 
-	// Create instance of user service& injectto handler
-	handler := userHandler{}
+	// Create instance of user service& inject to handler
+	svc := service.UserService{}
+	handler := userHandler{
+		svc: svc,
+	}
 
 	//Public EndPoint
 	app.Post("/register", handler.Register)
@@ -39,8 +44,23 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 
 func (h *userHandler) Register(ctx *fiber.Ctx) error {
 
+	user := dto.UserSignup{}
+	err := ctx.BodyParser(&user)
+	if err != nil {
+		return ctx.Status(http.StatusBadGateway).JSON(fiber.Map{
+			"Message": "di mohon masukan input data user yang benar.",
+		})
+	}
+
+	token, err := h.svc.Signup(user)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "error dalam mendaftar data diri",
+		})
+	}
+
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
-		"message": "your success register",
+		"message": token,
 	})
 
 }

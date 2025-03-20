@@ -16,7 +16,10 @@ func StartServer(config config.AppConfig) {
 
 	setUpRoutes(rh)
 
-	app.Listen(config.ServerPort)
+	err := app.Listen(config.ServerPort)
+	if err != nil {
+		return
+	}
 }
 
 func setUpRoutes(rh *rest.RestHandler) {
