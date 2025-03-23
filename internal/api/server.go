@@ -5,18 +5,35 @@ import (
 	"go-myobokucomerce-app/config"
 	"go-myobokucomerce-app/internal/api/rest"
 	"go-myobokucomerce-app/internal/api/rest/handlers"
+	"go-myobokucomerce-app/internal/domain"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"log"
 )
 
 func StartServer(config config.AppConfig) {
 	app := fiber.New()
 
+	db, err := gorm.Open(postgres.Open(config.Dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("database connection error %v\n", err)
+	}
+	log.Println("database connected")
+
+	//run Migration
+	err = db.AutoMigrate(&domain.User{})
+	if err != nil {
+		return
+	}
+  
 	rh := &rest.RestHandler{
 		App: app,
+		DB:  db,
 	}
 
 	setUpRoutes(rh)
 
-	err := app.Listen(config.ServerPort)
+	err = app.Listen(config.ServerPort)
 	if err != nil {
 		return
 	}
