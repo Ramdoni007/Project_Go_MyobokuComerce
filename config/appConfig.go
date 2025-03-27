@@ -16,7 +16,6 @@ func SetupEnv() (cfg AppConfig, err error) {
 	if os.Getenv("APP_ENV") == "dev" {
 		godotenv.Load()
 	}
-
 	httpPort := os.Getenv("HTTP_PORT")
 	if len(httpPort) < 1 {
 		return AppConfig{}, errors.New("env variables not found")
@@ -28,4 +27,5 @@ func SetupEnv() (cfg AppConfig, err error) {
 	}
 
 	return AppConfig{ServerPort: httpPort, Dsn: Dsn}, nil
+
 }

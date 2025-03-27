@@ -1,19 +1,32 @@
 package service
 
 import (
+	"fmt"
 	"go-myobokucomerce-app/internal/domain"
 	"go-myobokucomerce-app/internal/dto"
+	"go-myobokucomerce-app/internal/repository"
 	"log"
 )
 
 type UserService struct {
+	Repo repository.UserRepository
 }
 
 func (s UserService) Signup(input dto.UserSignup) (string, error) {
 
-	log.Println(input)
+	//Create User Functionality
+	user, err := s.Repo.CreateUser(domain.User{
+		Email:    input.Email,
+		Password: input.Password,
+		Phone:    input.Phone,
+	})
 
-	return "ini token yang berhasil di buat", nil
+	//Generate Token
+	log.Println(user)
+
+	userInfo := fmt.Sprintf("%v,%v,%v", user.ID, user.Password, user.Phone)
+
+	return userInfo, err
 }
 
 func (s UserService) findUserByEmail(email string) (*domain.User, error) {

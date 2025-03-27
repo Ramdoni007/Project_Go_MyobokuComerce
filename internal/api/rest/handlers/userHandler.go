@@ -4,6 +4,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"go-myobokucomerce-app/internal/api/rest"
 	"go-myobokucomerce-app/internal/dto"
+	"go-myobokucomerce-app/internal/repository"
 	"go-myobokucomerce-app/internal/service"
 	"net/http"
 )
@@ -18,7 +19,9 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 	app := rh.App
 
 	// Create instance of user service& inject to handler
-	svc := service.UserService{}
+	svc := service.UserService{
+		Repo: repository.NewUserRepository(rh.DB),
+	}
 	handler := userHandler{
 		svc: svc,
 	}
