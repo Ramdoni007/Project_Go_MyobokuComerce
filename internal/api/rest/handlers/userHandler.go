@@ -69,8 +69,26 @@ func (h *userHandler) Register(ctx *fiber.Ctx) error {
 }
 
 func (h *userHandler) Login(ctx *fiber.Ctx) error {
+
+	loginInput := dto.UserLogin{}
+	err := ctx.BodyParser(&loginInput)
+	if err != nil {
+		return ctx.Status(http.StatusBadGateway).JSON(fiber.Map{
+			"Message": "di mohon masukan input data user yang benar.",
+		})
+	}
+
+	token, err := h.svc.Login(loginInput.Email, loginInput.Password)
+
+	if err != nil {
+		return ctx.Status(http.StatusUnauthorized).JSON(fiber.Map{
+			"Message": "error dalam login di mohon coba dengan data email dan password yang benar",
+		})
+	}
+
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
 		"Message": "your Success login",
+		"token":   token,
 	})
 }
 

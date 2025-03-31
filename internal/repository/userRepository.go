@@ -4,6 +4,7 @@ import (
 	"errors"
 	"go-myobokucomerce-app/internal/domain"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"log"
 )
 
@@ -40,18 +41,47 @@ func (r userRepository) CreateUser(usr domain.User) (domain.User, error) {
 
 func (r userRepository) FindUser(email string) (domain.User, error) {
 
-	return domain.User{}, nil
+	var user domain.User
+
+	err := r.db.First(&user, "email=?", email).Error
+
+	if err != nil {
+		log.Printf("Find User is not found %v", err)
+		return domain.User{}, errors.New("user does not exist")
+
+	}
+
+	return user, nil
 
 }
 
 func (r userRepository) FindUserById(id uint) (domain.User, error) {
 
-	return domain.User{}, nil
+	var user domain.User
+
+	err := r.db.First(&user, id).Error
+
+	if err != nil {
+		log.Printf("Find User is not found %v", err)
+		return domain.User{}, errors.New("user does not exist")
+
+	}
+
+	return user, nil
 
 }
 
 func (r userRepository) UpdateUser(id uint, u domain.User) (domain.User, error) {
 
-	return domain.User{}, nil
+	var user domain.User
 
+	err := r.db.Model(&user).Clauses(clause.Returning{}).Where("id=?", id).Updates(u).Error
+
+	if err != nil {
+		log.Printf("Update User is error %v", err)
+		return domain.User{}, errors.New("can not Update Error")
+
+	}
+
+	return user, nil
 }

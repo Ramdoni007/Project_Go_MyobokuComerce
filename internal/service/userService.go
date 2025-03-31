@@ -1,6 +1,7 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 	"go-myobokucomerce-app/internal/domain"
 	"go-myobokucomerce-app/internal/dto"
@@ -31,12 +32,23 @@ func (s UserService) Signup(input dto.UserSignup) (string, error) {
 
 func (s UserService) findUserByEmail(email string) (*domain.User, error) {
 
-	return nil, nil
+	user, err := s.Repo.FindUser(email)
+
+	return &user, err
 }
 
-func (s UserService) Login(input any) (string, error) {
+func (s UserService) Login(email string, password string) (string, error) {
 
-	return "", nil
+	user, err := s.findUserByEmail(email)
+
+	if err != nil {
+		return "", errors.New("user does not exist with the provided email id")
+
+	}
+
+	//compare password and generate token
+
+	return user.Email, nil
 }
 
 func (s UserService) GetVerificationCode(e domain.User) (int, error) {
