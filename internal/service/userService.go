@@ -2,32 +2,35 @@ package service
 
 import (
 	"errors"
-	"fmt"
 	"go-myobokucomerce-app/internal/domain"
 	"go-myobokucomerce-app/internal/dto"
+	"go-myobokucomerce-app/internal/helper"
 	"go-myobokucomerce-app/internal/repository"
-	"log"
 )
 
 type UserService struct {
 	Repo repository.UserRepository
+	Auth helper.Auth
 }
 
 func (s UserService) Signup(input dto.UserSignup) (string, error) {
 
+	hPassword, err := s.Auth.CreateHashedPassword(input.Password)
+
+	if err != nil {
+		return "", err
+	}
+
 	//Create User Functionality
 	user, err := s.Repo.CreateUser(domain.User{
 		Email:    input.Email,
-		Password: input.Password,
+		Password: hPassword,
 		Phone:    input.Phone,
 	})
 
 	//Generate Token
-	log.Println(user)
+	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 
-	userInfo := fmt.Sprintf("%v,%v,%v", user.ID, user.Password, user.Phone)
-
-	return userInfo, err
 }
 
 func (s UserService) findUserByEmail(email string) (*domain.User, error) {
@@ -46,9 +49,14 @@ func (s UserService) Login(email string, password string) (string, error) {
 
 	}
 
-	//compare password and generate token
+	err = s.Auth.VerifyPassword(password, user.Password)
 
-	return user.Email, nil
+	if err != nil {
+		return "", err
+	}
+
+	// generate token
+	return s.Auth.GenerateToken(user.ID, user.Email, user.UserType)
 }
 
 func (s UserService) GetVerificationCode(e domain.User) (int, error) {

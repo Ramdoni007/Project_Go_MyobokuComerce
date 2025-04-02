@@ -6,6 +6,7 @@ import (
 	"go-myobokucomerce-app/internal/api/rest"
 	"go-myobokucomerce-app/internal/api/rest/handlers"
 	"go-myobokucomerce-app/internal/domain"
+	"go-myobokucomerce-app/internal/helper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
@@ -25,10 +26,13 @@ func StartServer(config config.AppConfig) {
 	if err != nil {
 		return
 	}
-  
+
+	auth := helper.SetUpAuth(config.AppSecret)
+
 	rh := &rest.RestHandler{
-		App: app,
-		DB:  db,
+		App:  app,
+		DB:   db,
+		Auth: auth,
 	}
 
 	setUpRoutes(rh)
