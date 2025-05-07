@@ -2,17 +2,21 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"go-myobokucomerce-app/config"
 	"go-myobokucomerce-app/internal/domain"
 	"go-myobokucomerce-app/internal/dto"
 	"go-myobokucomerce-app/internal/helper"
 	"go-myobokucomerce-app/internal/repository"
+	"go-myobokucomerce-app/pkg/notification"
 	"log"
 	"time"
 )
 
 type UserService struct {
-	Repo repository.UserRepository
-	Auth helper.Auth
+	Repo   repository.UserRepository
+	Auth   helper.Auth
+	Config config.AppConfig
 }
 
 func (s UserService) Signup(input dto.UserSignup) (string, error) {
@@ -89,7 +93,11 @@ func (s UserService) GetVerificationCode(e domain.User) error {
 		return errors.New("unable to update verification code")
 	}
 
+	user, _ = s.Repo.FindUserById(e.ID)
 	// send SMS verification
+	notificationClient := notification.NewNotificationClient(s.Config)
+	msg := fmt.Sprintf("your verification code number is %v", code)
+	notificationClient.SendSMS(user.Phone, msg)
 
 	// return verfication code.
 

@@ -21,8 +21,9 @@ func SetUpUserRoutes(rh *rest.RestHandler) {
 
 	// Create instance of user service& inject to handler
 	svc := service.UserService{
-		Repo: repository.NewUserRepository(rh.DB),
-		Auth: rh.Auth,
+		Repo:   repository.NewUserRepository(rh.DB),
+		Auth:   rh.Auth,
+		Config: rh.Config,
 	}
 	handler := userHandler{
 		svc: svc,

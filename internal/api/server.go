@@ -1,15 +1,16 @@
 package api
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"go-myobokucomerce-app/config"
 	"go-myobokucomerce-app/internal/api/rest"
 	"go-myobokucomerce-app/internal/api/rest/handlers"
 	"go-myobokucomerce-app/internal/domain"
 	"go-myobokucomerce-app/internal/helper"
+	"log"
+
+	"github.com/gofiber/fiber/v2"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"log"
 )
 
 func StartServer(config config.AppConfig) {
@@ -30,9 +31,10 @@ func StartServer(config config.AppConfig) {
 	auth := helper.SetUpAuth(config.AppSecret)
 
 	rh := &rest.RestHandler{
-		App:  app,
-		DB:   db,
-		Auth: auth,
+		App:    app,
+		DB:     db,
+		Auth:   auth,
+		Config: config,
 	}
 
 	setUpRoutes(rh)
