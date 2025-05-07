@@ -3,12 +3,13 @@ package helper
 import (
 	"errors"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v5"
 	"go-myobokucomerce-app/internal/domain"
-	"golang.org/x/crypto/bcrypt"
 	"strings"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v5"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type Auth struct {
@@ -103,7 +104,7 @@ func (a Auth) VerifyToken(t string) (domain.User, error) {
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
 			return domain.User{}, errors.New("token is expired")
 		}
-		fmt.Println(claims)
+
 		user := domain.User{}
 		user.ID = uint(claims["user_id"].(float64))
 		user.Email = claims["email"].(string)
@@ -137,4 +138,8 @@ func (a Auth) GetCurrentUser(ctx *fiber.Ctx) domain.User {
 	user := ctx.Locals("user")
 
 	return user.(domain.User)
+}
+
+func (a Auth) GenerateCode() (string, error) {
+	return RandomNumbers(6)
 }

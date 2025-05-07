@@ -1,17 +1,17 @@
 package handlers
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"go-myobokucomerce-app/internal/api/rest"
 	"go-myobokucomerce-app/internal/dto"
 	"go-myobokucomerce-app/internal/repository"
 	"go-myobokucomerce-app/internal/service"
 	"log"
 	"net/http"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type userHandler struct {
-	// waiting for svc userService
 	svc service.UserService
 }
 
@@ -100,14 +100,47 @@ func (h *userHandler) Login(ctx *fiber.Ctx) error {
 }
 
 func (h *userHandler) Verify(ctx *fiber.Ctx) error {
+
+	user := h.svc.Auth.GetCurrentUser(ctx)
+
+	//request
+	var req dto.VerificationInput
+
+	if err := ctx.BodyParser(&req); err != nil {
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"Message": "please provide a valid input",
+		})
+	}
+
+	err := h.svc.VerifyCode(user.ID, req.Code)
+
+	if err != nil {
+		log.Printf("%v", err)
+		return ctx.Status(http.StatusBadRequest).JSON(fiber.Map{
+			"Message": err.Error(),
+		})
+	}
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
-		"Message": "your Success Verify",
+		"Message": "Verified successfully",
 	})
 }
 
 func (h *userHandler) GetVerification(ctx *fiber.Ctx) error {
+
+	user := h.svc.Auth.GetCurrentUser(ctx)
+	log.Println(user)
+
+	//create verification code and update to user profile in DB
+	err := h.svc.GetVerificationCode(user)
+	log.Println(err)
+	if err != nil {
+		return ctx.Status(http.StatusInternalServerError).JSON(fiber.Map{
+			"Message": "unable to generate verification code ",
+			"data":    err,
+		})
+	}
 	return ctx.Status(http.StatusOK).JSON(fiber.Map{
-		"Message": "Get Verification",
+		"Message": "get Verification",
 	})
 }
 
