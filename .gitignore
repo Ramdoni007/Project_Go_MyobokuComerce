@@ -1,0 +1,22 @@
+# Binaries
+*.exe
+*.o
+
+# Dependencies
+/vendor/
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Go specific
+*.out
+*.test
+
+#dotenv
+.env
+.env.example
+.env.local
+.env.staging
